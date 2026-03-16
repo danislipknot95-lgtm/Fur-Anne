@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Mein Mond 🌛</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Playfair+Display:wght@400;700&family=Lato:wght@300;400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --deep: #0a0318;
+    --violet: #1a0533;
+    --glow: #c084fc;
+    --moon: #f5e6c8;
+    --gold: #e8c97e;
+    --rose: #f9a8d4;
+    --white: #fdf4ff;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--deep);
+    font-family: 'Lato', sans-serif;
+    color: var(--white);
+    overflow: hidden;
+    height: 100vh;
+    width: 100vw;
+    cursor: default;
+  }
+
+  /* ── PANTALLA INTRO ── */
+  #intro {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    background: radial-gradient(ellipse at 50% 30%, #2a0a4e 0%, #0a0318 70%);
+    transition: opacity 0.8s ease, transform 0.8s ease;
+  }
+
+  #intro.hide {
+    opacity: 0;
+    transform: scale(1.05);
+    pointer-events: none;
+  }
+
+  .moon-icon {
+    font-size: clamp(80px, 18vw, 140px);
+    animation: moonPulse 3s ease-in-out infinite;
+    filter: drop-shadow(0 0 30px #c084fc88);
+    margin-bottom: 24px;
+    display: block;
+  }
+
+  @keyframes moonPulse {
+    0%, 100% { transform: scale(1) rotate(-5deg); filter: drop-shadow(0 0 20px #c084fc66); }
+    50% { transform: scale(1.08) rotate(5deg); filter: drop-shadow(0 0 45px #c084fccc); }
+  }
+
+  .intro-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(42px, 12vw, 96px);
+    font-weight: 300;
+    font-style: italic;
+    color: var(--moon);
+    letter-spacing: 0.06em;
+    text-shadow: 0 0 40px #c084fc99;
+    animation: fadeSlideUp 1.2s ease both;
+    text-align: center;
+    line-height: 1;
+  }
+
+  .intro-sub {
+    font-family: 'Lato', sans-serif;
+    font-weight: 300;
+    font-size: clamp(11px, 3vw, 15px);
+    letter-spacing: 0.35em;
+    text-transform: uppercase;
+    color: var(--glow);
+    margin-top: 14px;
+    opacity: 0;
+    animation: fadeSlideUp 1.2s ease 0.5s both;
+  }
+
+  .tap-btn {
+    margin-top: 52px;
+    padding: 16px 44px;
+    border: 1.5px solid var(--glow);
+    border-radius: 50px;
+    background: transparent;
+    color: var(--white);
+    font-family: 'Lato', sans-serif;
+    font-size: 14px;
+    font-weight: 300;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    cursor: pointer;
+    opacity: 0;
+    animation: fadeSlideUp 1s ease 1.2s both;
+    transition: background 0.3s, box-shadow 0.3s, transform 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .tap-btn::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, #c084fc33, #f9a8d422);
+    opacity: 0;
+    transition: opacity 0.3s;
+    border-radius: 50px;
+  }
+
+  .tap-btn:hover::before { opacity: 1; }
+  .tap-btn:hover {
+    box-shadow: 0 0 24px #c084fc66;
+    transform: translateY(-2px);
+  }
+  .tap-btn:active { transform: scale(0.97); }
+
+  @keyframes fadeSlideUp {
+    from { opacity: 0; transform: translateY(22px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── ESTRELLAS FONDO ── */
+  .stars {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .star {
+    position: absolute;
+    border-radius: 50%;
+    background: white;
+    animation: twinkle var(--d) ease-in-out infinite;
+    animation-delay: var(--delay);
+  }
+
+  @keyframes twinkle {
+    0%, 100% { opacity: 0.1; transform: scale(0.8); }
+    50% { opacity: 0.9; transform: scale(1.2); }
+  }
+
+  /* ── MENSAJE PRINCIPAL ── */
+  #mensaje {
+    position: fixed;
+    inset: 0;
+    z-index: 50;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    opacity: 0;
+    transition: opacity 1s ease 0.2s;
+    overflow-y: auto;
+  }
+
+  #mensaje.show { opacity: 1; }
+
+  .card {
+    background: linear-gradient(160deg, rgba(26,5,51,0.92) 0%, rgba(10,3,24,0.96) 100%);
+    border: 1px solid rgba(192,132,252,0.25);
+    border-radius: 24px;
+    padding: clamp(28px, 6vw, 54px) clamp(24px, 7vw, 60px);
+    max-width: 520px;
+    width: 100%;
+    text-align: center;
+    box-shadow: 0 0 60px rgba(192,132,252,0.12), 0 30px 80px rgba(0,0,0,0.5);
+    backdrop-filter: blur(12px);
+    animation: cardFloat 7s ease-in-out infinite;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .card::before {
+    content: '';
+    position: absolute;
+    top: -1px; left: 10%; right: 10%;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--glow), transparent);
+    border-radius: 2px;
+  }
+
+  @keyframes cardFloat {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+  }
+
+  .card-moon {
+    font-size: clamp(36px, 10vw, 60px);
+    display: block;
+    margin-bottom: 8px;
+    filter: drop-shadow(0 0 18px #c084fc88);
+    animation: moonPulse 4s ease-in-out infinite;
+  }
+
+  .german-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(28px, 8vw, 52px);
+    font-weight: 300;
+    font-style: italic;
+    color: var(--moon);
+    letter-spacing: 0.04em;
+    text-shadow: 0 0 28px #c084fc88;
+    line-height: 1.1;
+    margin-bottom: 6px;
+    opacity: 0;
+    animation: revealLine 0.8s ease 0.3s both;
+  }
+
+  .divider {
+    width: 60px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    margin: 18px auto;
+    opacity: 0;
+    animation: revealLine 0.8s ease 0.5s both;
+  }
+
+  .badge {
+    display: inline-block;
+    background: linear-gradient(135deg, rgba(192,132,252,0.2), rgba(249,168,212,0.15));
+    border: 1px solid rgba(192,132,252,0.3);
+    border-radius: 30px;
+    padding: 7px 22px;
+    font-size: clamp(10px, 2.5vw, 13px);
+    font-weight: 300;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--rose);
+    margin-bottom: 20px;
+    opacity: 0;
+    animation: revealLine 0.8s ease 0.7s both;
+  }
+
+  .msg-text {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(16px, 4.5vw, 22px);
+    font-weight: 400;
+    line-height: 1.75;
+    color: rgba(253,244,255,0.92);
+    opacity: 0;
+    animation: revealLine 0.9s ease 0.9s both;
+  }
+
+  .msg-text em {
+    font-style: italic;
+    color: var(--gold);
+  }
+
+  .msg-text strong {
+    color: var(--rose);
+    font-weight: 400;
+  }
+
+  .signature {
+    margin-top: 28px;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(13px, 3.5vw, 17px);
+    font-style: italic;
+    font-weight: 300;
+    color: var(--glow);
+    letter-spacing: 0.1em;
+    opacity: 0;
+    animation: revealLine 0.9s ease 1.2s both;
+  }
+
+  @keyframes revealLine {
+    from { opacity: 0; transform: translateY(14px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── CORAZONES FLOTANTES ── */
+  .heart {
+    position: fixed;
+    font-size: 16px;
+    animation: riseHeart 9s linear infinite;
+    pointer-events: none;
+    z-index: 10;
+    opacity: 0;
+  }
+
+  @keyframes riseHeart {
+    0%   { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+    10%  { opacity: 0.7; }
+    90%  { opacity: 0.4; }
+    100% { transform: translateY(-12vh) rotate(20deg); opacity: 0; }
+  }
+
+  /* ── PARTICLES on click ── */
+  .particle {
+    position: fixed;
+    pointer-events: none;
+    z-index: 200;
+    animation: particleBurst 0.8s ease-out both;
+  }
+
+  @keyframes particleBurst {
+    0%   { transform: translate(0,0) scale(1); opacity: 1; }
+    100% { transform: translate(var(--tx), var(--ty)) scale(0); opacity: 0; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Estrellas -->
+<div class="stars" id="stars"></div>
+
+<!-- Pantalla de entrada -->
+<div id="intro">
+  <span class="moon-icon">🌛</span>
+  <h1 class="intro-title">Mein Mond</h1>
+  <p class="intro-sub">Un mensaje para ti</p>
+  <button class="tap-btn" id="tapBtn">✦ Toca para abrir ✦</button>
+</div>
+
+<!-- Mensaje principal -->
+<div id="mensaje">
+  <div class="card">
+    <span class="card-moon">🌛</span>
+    <h1 class="german-title">Hallo Mein Mond</h1>
+    <div class="divider"></div>
+    <span class="badge">✦ Un mes más juntos ✦</span>
+    <p class="msg-text">
+      Hoy cumplimos <em>un mes más</em> estando juntos,<br>
+      para una <strong>vida que nos queda por delante</strong>.<br><br>
+      Eres <em>lo más importante de mi vida</em><br>
+      y te amo con todo mi ser. ❤️
+    </p>
+    <p class="signature">— Con todo mi amor, siempre 🌙</p>
+  </div>
+</div>
+
+<script>
+  // ── Generar estrellas ──
+  const starsEl = document.getElementById('stars');
+  for (let i = 0; i < 120; i++) {
+    const s = document.createElement('div');
+    s.className = 'star';
+    const size = Math.random() * 2.5 + 0.5;
+    s.style.cssText = `
+      width:${size}px; height:${size}px;
+      left:${Math.random()*100}%;
+      top:${Math.random()*100}%;
+      --d:${(Math.random()*4+2).toFixed(1)}s;
+      --delay:${(Math.random()*5).toFixed(1)}s;
+    `;
+    starsEl.appendChild(s);
+  }
+
+  // ── Corazones flotantes ──
+  const emojis = ['❤️','💜','🌸','✨','💫','🩷','🤍'];
+  function spawnHeart() {
+    const h = document.createElement('div');
+    h.className = 'heart';
+    h.innerHTML = emojis[Math.floor(Math.random() * emojis.length)];
+    h.style.left = Math.random() * 100 + 'vw';
+    h.style.animationDelay = '0s';
+    h.style.animationDuration = (7 + Math.random() * 5) + 's';
+    document.body.appendChild(h);
+    setTimeout(() => h.remove(), 12000);
+  }
+  setInterval(spawnHeart, 900);
+
+  // ── Botón: mostrar mensaje ──
+  document.getElementById('tapBtn').addEventListener('click', () => {
+    document.getElementById('intro').classList.add('hide');
+    const msg = document.getElementById('mensaje');
+    msg.classList.add('show');
+    spawnParticles(window.innerWidth/2, window.innerHeight/2, 18);
+  });
+
+  // ── Partículas al hacer click ──
+  function spawnParticles(x, y, count) {
+    const ps = ['✨','💜','🌸','⭐','💫'];
+    for (let i = 0; i < count; i++) {
+      const p = document.createElement('div');
+      p.className = 'particle';
+      p.innerHTML = ps[Math.floor(Math.random() * ps.length)];
+      const angle = (Math.PI * 2 / count) * i;
+      const dist = 60 + Math.random() * 80;
+      p.style.cssText = `
+        left:${x}px; top:${y}px;
+        font-size:${12 + Math.random()*12}px;
+        --tx:${Math.cos(angle)*dist}px;
+        --ty:${Math.sin(angle)*dist}px;
+        animation-duration:${0.6 + Math.random()*0.5}s;
+        animation-delay:${Math.random()*0.15}s;
+      `;
+      document.body.appendChild(p);
+      setTimeout(() => p.remove(), 1500);
+    }
+  }
+
+  document.addEventListener('click', (e) => {
+    if (document.getElementById('mensaje').classList.contains('show')) {
+      spawnParticles(e.clientX, e.clientY, 8);
+    }
+  });
+</script>
+</body>
+</html>
